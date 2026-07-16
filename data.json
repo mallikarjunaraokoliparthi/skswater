@@ -1,0 +1,342 @@
+{
+  "pricePerLiter": 0,
+  "readings": [
+    {
+      "flat": "401",
+      "month": "2026-07",
+      "reading": 1506,
+      "photo": "1784099050749_IMG_6717.JPG",
+      "takenAt": "2026-07-15T03:50:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 2
+    },
+    {
+      "flat": "201",
+      "month": "2026-07",
+      "reading": 7656,
+      "photo": "1784099050792_IMG_6719.JPG",
+      "takenAt": "2026-07-15T03:50:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 3
+    },
+    {
+      "flat": "101",
+      "month": "2026-07",
+      "reading": 1679.32,
+      "photo": "1784099050810_IMG_6720.JPG",
+      "takenAt": "2026-07-15T03:50:00.000Z",
+      "updatedAt": "2026-07-16T01:39:50.490Z",
+      "id": 4
+    },
+    {
+      "flat": "402",
+      "month": "2026-07",
+      "reading": 0,
+      "photo": "1784099050767_IMG_6722.JPG",
+      "takenAt": "2026-07-15T03:51:00.000Z",
+      "updatedAt": "2026-07-16T01:22:52.048Z",
+      "id": 5
+    },
+    {
+      "flat": "302",
+      "month": "2026-07",
+      "reading": 2501,
+      "photo": "1784099050772_IMG_6723.JPG",
+      "takenAt": "2026-07-15T03:51:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 6
+    },
+    {
+      "flat": "g2",
+      "month": "2026-07",
+      "reading": 1213.56,
+      "photo": "1784099050777_IMG_6724.JPG",
+      "takenAt": "2026-07-15T03:51:00.000Z",
+      "updatedAt": "2026-07-16T01:25:14.564Z",
+      "id": 7
+    },
+    {
+      "flat": "103",
+      "month": "2026-07",
+      "reading": 4379,
+      "photo": "1784099050862_IMG_6730.JPG",
+      "takenAt": "2026-07-15T03:52:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 9
+    },
+    {
+      "flat": "301",
+      "month": "2026-07",
+      "reading": 3670,
+      "photo": "1784099050787_IMG_6718.JPG",
+      "takenAt": "2026-07-15T03:50:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 10
+    },
+    {
+      "flat": "102",
+      "month": "2026-07",
+      "reading": 2210,
+      "photo": "1784099050823_IMG_6725.JPG",
+      "takenAt": "2026-07-15T03:51:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 11
+    },
+    {
+      "flat": "403",
+      "month": "2026-07",
+      "reading": 2564,
+      "photo": "1784099050856_IMG_6727.JPG",
+      "takenAt": "2026-07-15T03:52:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 12
+    },
+    {
+      "flat": "303",
+      "month": "2026-07",
+      "reading": 976,
+      "photo": "1784099050781_IMG_6728.JPG",
+      "takenAt": "2026-07-15T03:52:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 13
+    },
+    {
+      "flat": "203",
+      "month": "2026-07",
+      "reading": 2337,
+      "photo": "1784099050859_IMG_6729.JPG",
+      "takenAt": "2026-07-15T03:52:00.000Z",
+      "updatedAt": "2026-07-15T07:08:23.956Z",
+      "id": 14
+    },
+    {
+      "flat": "g3",
+      "month": "2026-07",
+      "reading": 1043.41,
+      "photo": "1784099050867_IMG_6731.JPG",
+      "takenAt": "2026-07-15T03:52:00.000Z",
+      "updatedAt": "2026-07-16T01:25:56.551Z",
+      "id": 15
+    },
+    {
+      "flat": "g1",
+      "month": "2026-07",
+      "reading": 150.748,
+      "photo": null,
+      "takenAt": "2026-07-01T00:05:00.000Z",
+      "updatedAt": "2026-07-16T00:06:52.215Z",
+      "id": 16
+    },
+    {
+      "flat": "g2",
+      "month": "2026-07",
+      "reading": 1213.04,
+      "photo": null,
+      "takenAt": "2026-07-01T00:05:00.000Z",
+      "updatedAt": "2026-07-16T00:10:33.831Z",
+      "id": 17
+    },
+    {
+      "flat": "g2",
+      "month": "2026-07",
+      "reading": 1213.59,
+      "photo": null,
+      "takenAt": "2026-07-15T00:05:00.000Z",
+      "updatedAt": "2026-07-16T00:11:28.823Z",
+      "id": 18
+    },
+    {
+      "flat": "g2",
+      "month": "2026-07",
+      "reading": 1213.56,
+      "photo": null,
+      "takenAt": "2026-07-15T00:05:00.000Z",
+      "updatedAt": "2026-07-16T00:11:52.991Z",
+      "id": 19
+    },
+    {
+      "flat": "g2",
+      "month": "2026-07",
+      "reading": 1213.04,
+      "photo": null,
+      "takenAt": "2026-07-01T00:53:00.000Z",
+      "updatedAt": "2026-07-16T00:55:45.038Z",
+      "id": 22
+    },
+    {
+      "flat": "g3",
+      "month": "2026-07",
+      "reading": 1033.85,
+      "photo": null,
+      "takenAt": "2026-07-01T00:53:00.000Z",
+      "updatedAt": "2026-07-16T00:56:01.738Z",
+      "id": 23
+    },
+    {
+      "flat": "101",
+      "month": "2026-07",
+      "reading": 1670.8,
+      "photo": null,
+      "takenAt": "2026-07-01T00:53:00.000Z",
+      "updatedAt": "2026-07-16T00:56:52.301Z",
+      "id": 24
+    },
+    {
+      "flat": "102",
+      "month": "2026-07",
+      "reading": 2203.08,
+      "photo": null,
+      "takenAt": "2026-07-01T00:53:00.000Z",
+      "updatedAt": "2026-07-16T01:10:27.387Z",
+      "id": 25
+    },
+    {
+      "flat": "103",
+      "month": "2026-07",
+      "reading": 4372.41,
+      "photo": null,
+      "takenAt": "2026-07-01T00:53:00.000Z",
+      "updatedAt": "2026-07-16T00:58:18.111Z",
+      "id": 26
+    },
+    {
+      "flat": "201",
+      "month": "2026-07",
+      "reading": 7613.94,
+      "photo": null,
+      "takenAt": "2026-07-01T00:53:00.000Z",
+      "updatedAt": "2026-07-16T00:58:53.136Z",
+      "id": 27
+    },
+    {
+      "id": 32,
+      "flat": "202",
+      "month": "2026-07",
+      "reading": 0,
+      "photo": null,
+      "takenAt": "2026-07-16T01:07:00.000Z",
+      "updatedAt": "2026-07-16T01:10:43.823Z"
+    },
+    {
+      "id": 33,
+      "flat": "202",
+      "month": "2026-07",
+      "reading": 0,
+      "photo": null,
+      "takenAt": "2026-07-01T01:07:00.000Z",
+      "updatedAt": "2026-07-16T01:11:00.958Z"
+    },
+    {
+      "id": 34,
+      "flat": "203",
+      "month": "2026-07",
+      "reading": 2318.43,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:17:03.258Z"
+    },
+    {
+      "id": 36,
+      "flat": "301",
+      "month": "2026-07",
+      "reading": 3656.78,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:19:32.403Z"
+    },
+    {
+      "id": 37,
+      "flat": "302",
+      "month": "2026-07",
+      "reading": 2487.15,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:19:49.815Z"
+    },
+    {
+      "id": 38,
+      "flat": "303",
+      "month": "2026-07",
+      "reading": 973.48,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:20:06.306Z"
+    },
+    {
+      "id": 39,
+      "flat": "401",
+      "month": "2026-07",
+      "reading": 1505.08,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:21:34.377Z"
+    },
+    {
+      "id": 40,
+      "flat": "402",
+      "month": "2026-07",
+      "reading": 0,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:22:49.065Z"
+    },
+    {
+      "id": 41,
+      "flat": "403",
+      "month": "2026-07",
+      "reading": 2542.17,
+      "photo": null,
+      "takenAt": "2026-07-01T01:16:00.000Z",
+      "updatedAt": "2026-07-16T01:22:28.497Z"
+    },
+    {
+      "id": 46,
+      "flat": "g1",
+      "month": "2026-07",
+      "reading": 161.659,
+      "photo": "1784165640763_IMG_6721.JPG",
+      "takenAt": "2026-07-15T03:50:00.000Z",
+      "updatedAt": "2026-07-16T01:34:10.897Z"
+    },
+    {
+      "id": 47,
+      "flat": "g1",
+      "month": "2026-07",
+      "reading": 161.658,
+      "photo": "1784165927345_IMG_6721.JPG",
+      "takenAt": "2026-07-15T03:50:00.000Z",
+      "updatedAt": "2026-07-16T01:38:56.262Z"
+    }
+  ],
+  "billing": {
+    "2026-07": {
+      "manjeeraAmount": 4000,
+      "tankerAmount": 0,
+      "totalInputLitres": 0,
+      "rebates": {},
+      "brokenMeters": {
+        "202": true,
+        "402": true
+      },
+      "inputs": {
+        "pipeStart": "",
+        "pipeEnd": "",
+        "tankers": [
+          {
+            "type": "municipal",
+            "size": 5000,
+            "count": 0,
+            "price": 0
+          },
+          {
+            "type": "private",
+            "size": 10000,
+            "count": 0,
+            "price": 0
+          }
+        ]
+      }
+    }
+  },
+  "nextId": 48
+}

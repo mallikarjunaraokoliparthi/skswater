@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKS Water Meters</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1a2b3c; padding: 20px; }
+  h1 { font-size: 22px; margin-bottom: 16px; color: #0b5394; }
+  h2 { font-size: 16px; margin-bottom: 10px; color: #0b5394; }
+  .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .top-row { display: flex; flex-wrap: wrap; gap: 20px; position: sticky; top: 0; z-index: 5; background: #f0f4f8; padding: 8px 0; }
+  .top-row .card { margin-bottom: 0; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .top-row .card { flex: 1; min-width: 300px; }
+  label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px; }
+  input, button, select { font-size: 14px; padding: 8px 10px; border: 1px solid #c7d4e0; border-radius: 6px; }
+  input:focus { outline: 2px solid #0b5394; }
+  button { background: #0b5394; color: #fff; border: none; cursor: pointer; font-weight: 600; }
+  button:hover { background: #094275; }
+  .row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; margin-bottom: 10px; }
+  .photo-entry { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid #e0e8f0; border-radius: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .photo-entry img { width: 90px; height: 70px; object-fit: cover; border-radius: 6px; cursor: pointer; }
+  .photo-date { font-size: 12px; color: #0a7d40; font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid #d5e0ea; padding: 7px 9px; text-align: right; white-space: nowrap; }
+  th { background: #0b5394; color: #fff; text-align: center; }
+  td:first-child, th:first-child { text-align: left; font-weight: 600; background: #eef4fa; color: #1a2b3c; }
+  th:first-child { background: #0b5394; color: #fff; }
+  tr:nth-child(even) td { background: #f7fafc; }
+  tr:nth-child(even) td:first-child { background: #eef4fa; }
+  .usage { color: #0a7d40; font-weight: 600; }
+  .bill { color: #b0300e; font-weight: 700; }
+  .muted { color: #8899aa; }
+  .table-wrap { overflow-x: auto; }
+  #priceInput { width: 120px; font-size: 18px; font-weight: 700; }
+  .total-row td { background: #fff6e0 !important; font-weight: 700; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab { padding: 8px 16px; border-radius: 20px; background: #e8eef5; color: #0b5394; font-weight: 600; cursor: pointer; border: 2px solid transparent; font-size: 14px; }
+  .tab:hover { background: #d5e4f2; }
+  .tab.active { background: #0b5394; color: #fff; }
+  .datetime { font-size: 12px; color: #556677; }
+  #photoModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:10; align-items:center; justify-content:center; overflow:hidden; }
+  #photoModal img { max-width:90vw; max-height:90vh; border-radius:8px; transition:transform .08s; cursor:grab; user-select:none; }
+  .zoom-controls { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:11; display:flex; gap:8px; }
+  .zoom-controls button { font-size:20px; width:48px; height:48px; border-radius:50%; background:#fff; color:#0b5394; }
+  .zoom-controls button:hover { background:#e8eef5; }
+  #zoomClose { position:fixed; top:16px; right:20px; z-index:11; font-size:18px; width:44px; height:44px; border-radius:50%; background:#fff; color:#b0300e; }
+  .zoom-hint { position:fixed; top:20px; left:50%; transform:translateX(-50%); color:#fff; font-size:13px; z-index:11; background:rgba(0,0,0,.5); padding:6px 14px; border-radius:16px; }
+</style>
+</head>
+<body>
+
+<h1>💧 SKS Apartment — Water Meter Readings &amp; Monthly Bill</h1>
+
+<div class="top-row">
+  <!-- UPLOAD BOX -->
+  <div class="card">
+    <h2>📷 Upload Meter Photos</h2>
+    <div class="row">
+      <div>
+        <label>Month</label>
+        <input type="month" id="monthInput">
+      </div>
+      <div>
+        <label>Photos (select 15 flats' photos)</label>
+        <input type="file" id="photoInput" accept="image/*" multiple>
+      </div>
+      <button onclick="uploadPhotos()">Upload</button>
+    </div>
+    <div class="muted">Photo date &amp; time is read automatically from each photo.</div>
+  </div>
+
+  <!-- MANUAL ENTRY (no photo needed) -->
+  <div class="card">
+    <h2>✏️ Manual Entry (ఫోటో లేకుండా)</h2>
+  <div class="row">
+    <div>
+      <label>Month</label>
+      <input type="month" id="mMonth">
+    </div>
+    <div>
+      <label>Flat No.</label>
+      <input type="text" id="mFlat" placeholder="e.g. 101" style="width:100px">
+    </div>
+    <div>
+      <label>Meter Reading (kL)</label>
+      <input type="number" step="any" id="mReading" placeholder="e.g. 1670.8" style="width:140px">
+    </div>
+    <div>
+      <label>Date &amp; Time</label>
+      <input type="datetime-local" id="mDate">
+    </div>
+    <button onclick="saveManual()">Add Reading</button>
+  </div>
+    <div class="muted" id="manualStatus"></div>
+  </div>
+</div>
+
+<!-- READING ENTRY (appears after upload) -->
+<div class="card" id="entryCard" style="display:none">
+  <h2>✍️ Enter Readings for <span id="entryMonth"></span></h2>
+  <div id="entryList"></div>
+  <button onclick="saveReadings()">Save All Readings</button>
+</div>
+
+<!-- MONTH TABS + TABLE -->
+<div class="card">
+  <h2>📊 Monthly Water Usage &amp; Bill</h2>
+  <div class="tabs" id="tabs"></div>
+  <div class="table-wrap" id="tableWrap"><span class="muted">No readings yet. Upload photos and enter readings.</span></div>
+</div>
+
+<div id="photoModal">
+  <div class="zoom-hint">🖱️ Scroll = zoom &nbsp;|&nbsp; Drag = move &nbsp;|&nbsp; Double-click = zoom in</div>
+  <img id="modalImg" draggable="false">
+  <div class="zoom-controls">
+    <button onclick="zoomBy(0.5)">+</button>
+    <button onclick="zoomBy(-0.5)">−</button>
+    <button onclick="zoomReset()" style="font-size:13px">1:1</button>
+  </div>
+  <button id="zoomClose" onclick="closePhoto()">✕</button>
+</div>
+
+<script src="/exifr.js"></script>
+<script>
+let DATA = { pricePerLiter: 0, readings: [] };
+let uploadedFiles = [];   // [{filename, takenAt}]
+let activeTab = null;     // selected month
+let expandedFlat = null;  // flat whose entries editor is open
+
+function toggleEntries(flat) {
+  expandedFlat = expandedFlat === flat ? null : flat;
+  renderTabs();
+}
+// Excel-like: double-click a reading cell, type new value, Enter/click away = save, Esc = cancel
+function editCell(id, td, current) {
+  if (td.querySelector('input')) return;
+  td.innerHTML = `<input type="number" step="any" value="${current}" style="width:110px;padding:4px">`;
+  const inp = td.querySelector('input');
+  inp.focus(); inp.select();
+  let done = false;
+  const save = async () => {
+    if (done) return; done = true;
+    const v = Number(inp.value);
+    if (isNaN(v) || inp.value === '' || v === current) { await load(); return; }
+    await fetch('/api/reading/update', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id, reading: v })
+    });
+    await load();
+  };
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') save();
+    if (e.key === 'Escape') { done = true; load(); }
+  });
+  inp.addEventListener('blur', save);
+}
+
+async function updateEntry(id) {
+  const dt = document.getElementById('eDate_' + id).value;
+  await fetch('/api/reading/update', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      id,
+      reading: document.getElementById('eRead_' + id).value,
+      takenAt: dt ? new Date(dt).toISOString() : null
+    })
+  });
+  await load();
+}
+async function deleteEntry(id, flat) {
+  if (!confirm(`Flat ${flat} — ఈ reading ని delete చేయాలా?`)) return;
+  await fetch('/api/reading/delete', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ id })
+  });
+  await load();
+}
+
+document.getElementById('monthInput').value = new Date().toISOString().slice(0,7);
+document.getElementById('mMonth').value = new Date().toISOString().slice(0,7);
+document.getElementById('mDate').value = toLocalInput(new Date().toISOString());
+
+async function saveManual() {
+  const month = document.getElementById('mMonth').value;
+  const flat = document.getElementById('mFlat').value.trim();
+  const reading = document.getElementById('mReading').value;
+  const dt = document.getElementById('mDate').value;
+  if (!month || !flat || reading === '') { alert('Month, Flat No., Reading అన్నీ ఎంటర్ చేయండి'); return; }
+  await fetch('/api/readings', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ month, entries: [{
+      flat, reading,
+      takenAt: dt ? new Date(dt).toISOString() : new Date().toISOString()
+    }]})
+  });
+  document.getElementById('mFlat').value = '';
+  document.getElementById('mReading').value = '';
+  document.getElementById('manualStatus').textContent = `Saved ✔ Flat ${flat} — ${monthLabel(month)}`;
+  activeTab = month;
+  await load();
+}
+
+async function load() {
+  const res = await fetch('/api/data');
+  DATA = await res.json();
+  renderTabs();
+}
+
+// ---------- upload ----------
+async function uploadPhotos() {
+  const input = document.getElementById('photoInput');
+  const files = input.files;
+  if (!files.length) { alert('Select photos first'); return; }
+
+  // Read date/time from each photo's metadata. Checks every date field
+  // the photo may contain; if none exist, falls back to the file's own date.
+  const takenDates = [];
+  for (const f of files) {
+    let dt = null, source = 'photo metadata';
+    try {
+      const exif = await exifr.parse(f);   // parse ALL metadata
+      if (exif) {
+        dt = exif.DateTimeOriginal || exif.CreateDate || exif.ModifyDate ||
+             exif.DateTimeDigitized || exif.GPSDateStamp || exif.DateCreated ||
+             exif.CreationDate || null;
+        if (dt && !(dt instanceof Date)) dt = new Date(dt);
+        if (dt && isNaN(dt.getTime())) dt = null;
+      }
+    } catch (e) {}
+    if (!dt) { dt = new Date(f.lastModified); source = 'file date (no metadata found)'; }
+    takenDates.push({ iso: dt.toISOString(), source });
+  }
+
+  const fd = new FormData();
+  for (const f of files) fd.append('photos', f);
+  const res = await fetch('/api/upload', { method: 'POST', body: fd });
+  const out = await res.json();
+  uploadedFiles = out.files.map((filename, i) => ({
+    filename, takenAt: takenDates[i].iso, dateSource: takenDates[i].source
+  }));
+  showEntryForm();
+}
+
+function showEntryForm() {
+  const month = document.getElementById('monthInput').value;
+  document.getElementById('entryMonth').textContent = monthLabel(month);
+  const list = document.getElementById('entryList');
+  list.innerHTML = '';
+  uploadedFiles.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-entry';
+    div.innerHTML = `
+      <img src="/uploads/${f.filename}" onclick="openPhoto('/uploads/${f.filename}')">
+      <div>
+        <label>Flat No.</label>
+        <input type="text" id="flat_${i}" placeholder="e.g. 101" style="width:100px">
+      </div>
+      <div>
+        <label>Meter Reading (kL)</label>
+        <input type="number" step="any" id="read_${i}" placeholder="e.g. 1670.8" style="width:140px">
+      </div>
+      <div>
+        <label>Date &amp; Time <span class="muted" style="font-weight:400">(${f.dateSource})</span></label>
+        <input type="datetime-local" id="dt_${i}" value="${toLocalInput(f.takenAt)}">
+      </div>`;
+    list.appendChild(div);
+  });
+  document.getElementById('entryCard').style.display = 'block';
+  document.getElementById('entryCard').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveReadings() {
+  const month = document.getElementById('monthInput').value;
+  const entries = uploadedFiles.map((f, i) => ({
+    flat: document.getElementById('flat_' + i).value,
+    reading: document.getElementById('read_' + i).value,
+    photo: f.filename,
+    takenAt: (() => {
+      const v = document.getElementById('dt_' + i).value;
+      return v ? new Date(v).toISOString() : f.takenAt;
+    })()
+  })).filter(e => e.flat && e.reading !== '');
+  if (!entries.length) { alert('Enter at least one flat number and reading'); return; }
+  await fetch('/api/readings', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ month, entries })
+  });
+  document.getElementById('entryCard').style.display = 'none';
+  document.getElementById('photoInput').value = '';
+  uploadedFiles = [];
+  activeTab = month;
+  await load();
+  alert('Readings saved ✔');
+}
+
+// ---------- helpers ----------
+function monthLabel(m) {
+  if (!m) return '';
+  const [y, mo] = m.split('-');
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return names[Number(mo)-1] + ' ' + y;
+}
+function toLocalInput(iso) {
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}) +
+         ' ' + d.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+}
+// all entries for a flat in a month, sorted by photo date/time (oldest first)
+function getEntries(flat, month) {
+  return DATA.readings
+    .filter(r => r.flat === flat && r.month === month)
+    .sort((a, b) => new Date(a.takenAt || a.updatedAt) - new Date(b.takenAt || b.updatedAt));
+}
+// start/end for a flat in a month:
+//   end   = last reading of this month
+//   start = last reading of previous month; if none, first reading of THIS month
+function getStartEnd(flat, month) {
+  const months = allMonths();
+  const cur = getEntries(flat, month);
+  const idx = months.indexOf(month);
+  let startEntry = null, startLabel = '';
+  for (let i = idx - 1; i >= 0; i--) {
+    const prev = getEntries(flat, months[i]);
+    if (prev.length) { startEntry = prev[prev.length - 1]; startLabel = monthLabel(months[i]); break; }
+  }
+  if (!startEntry && cur.length >= 2) { startEntry = cur[0]; startLabel = 'first upload'; }
+  const endEntry = cur.length ? cur[cur.length - 1] : null;
+  return { startEntry, endEntry, startLabel };
+}
+function allMonths() { return [...new Set(DATA.readings.map(r => r.month))].sort(); }
+function allFlats() {
+  // ground floor (g1, g2, g3...) first, then flat numbers
+  return [...new Set(DATA.readings.map(r => r.flat))]
+    .sort((a, b) => {
+      const ag = a.toLowerCase().startsWith('g'), bg = b.toLowerCase().startsWith('g');
+      if (ag !== bg) return ag ? -1 : 1;
+      return a.localeCompare(b, undefined, {numeric: true});
+    });
+}
+
+// ---------- tabs ----------
+function renderTabs() {
+  const months = allMonths();
+  const tabsDiv = document.getElementById('tabs');
+  if (!months.length) {
+    tabsDiv.innerHTML = '';
+    document.getElementById('tableWrap').innerHTML =
+      '<span class="muted">No readings yet. Upload photos and enter readings.</span>';
+    return;
+  }
+  if (!activeTab || !months.includes(activeTab)) {
+    activeTab = months[months.length - 1];   // latest month by default
+  }
+  const years = [...new Set(months.map(m => m.split('-')[0]))].sort();
+  const activeYear = activeTab.split('-')[0];
+  let html = '';
+  // year tabs (shown when more than one year exists)
+  if (years.length > 1) {
+    for (const y of years) {
+      html += `<div class="tab ${activeYear===y?'active':''}" style="border:2px solid #0b5394" onclick="selectYear('${y}')">📅 ${y}</div>`;
+    }
+    html += '<div style="flex-basis:100%"></div>';
+  }
+  // month tabs of the active year
+  for (const m of months.filter(m => m.startsWith(activeYear + '-'))) {
+    html += `<div class="tab ${activeTab===m?'active':''}" onclick="selectTab('${m}')">${monthLabel(m)}</div>`;
+  }
+  tabsDiv.innerHTML = html;
+  renderMonthTable(activeTab);
+}
+function selectTab(m) { activeTab = m; renderTabs(); }
+function selectYear(y) {
+  const inYear = allMonths().filter(m => m.startsWith(y + '-'));
+  activeTab = inYear[inYear.length - 1];   // latest month of that year
+  renderTabs();
+}
+
+// ---------- month tab: start reading / end reading ----------
+function renderMonthTable(month) {
+  const fallbackPrice = 0;
+  const billing = (DATA.billing || {})[month] || {};
+  const manjeeraAmount = Number(billing.manjeeraAmount) || 0;
+
+  // Water inputs: Manjeera pipe bulk meter + tanker rows
+  const inputs = billing.inputs || {};
+  const tankers = inputs.tankers || [];
+  const pipeStart = Number(inputs.pipeStart) || 0;
+  const pipeEnd = Number(inputs.pipeEnd) || 0;
+  const pipeL = pipeEnd > pipeStart ? Math.round((pipeEnd - pipeStart) * 1000) : 0;
+  const tankerL = tankers.reduce((s, t) => s + (Number(t.size) || 0) * (Number(t.count) || 0), 0);
+  const tankStart = Number(inputs.tankStart) || 0;   // building tank stock at month start
+  const tankEnd = Number(inputs.tankEnd) || 0;       // stock still left at month end
+  const tankerAmtComputed = tankers.reduce((s, t) => s + (Number(t.price) || 0) * (Number(t.count) || 0), 0);
+  const tankerAmount = tankers.length ? tankerAmtComputed : (Number(billing.tankerAmount) || 0);
+  const totalAmount = manjeeraAmount + tankerAmount;
+
+  // collect rows: consumption (L) = (end - start) kL × 1000
+  const rows = [];
+  for (const flat of allFlats()) {
+    const { startEntry, endEntry, startLabel } = getStartEnd(flat, month);
+    if (!startEntry && !endEntry) continue;
+    const sameEntry = startEntry && endEntry && startEntry === endEntry;
+    const start = startEntry ? startEntry.reading : null;
+    const end = endEntry ? endEntry.reading : null;
+    const cons = (start !== null && end !== null && !sameEntry)
+      ? Math.max(0, Math.round((end - start) * 1000)) : null;
+    rows.push({ flat, startEntry, endEntry, startLabel, sameEntry, start, end, cons });
+  }
+
+  // Broken meters: every flat marked broken appears in the table even
+  // without readings; their consumption = (total input water − metered
+  // consumption) split equally among broken-meter flats.
+  const broken = billing.brokenMeters || {};
+  const totalInput = pipeL + tankerL;   // from the water-inputs table
+  for (const flat of allFlats()) {
+    if (broken[flat] && !rows.find(r => r.flat === flat)) {
+      rows.push({ flat, startEntry: null, endEntry: null, sameEntry: false, start: null, end: null, cons: null });
+    }
+  }
+  const meteredCons = rows.filter(r => !broken[r.flat] && r.cons !== null)
+                          .reduce((s, r) => s + r.cons, 0);
+  const brokenRows = rows.filter(r => broken[r.flat]);
+  if (brokenRows.length && totalInput > 0) {
+    // remaining water = total input - metered; split equally among broken flats
+    const splitCons = Math.max(0, totalInput - meteredCons) / brokenRows.length;
+    brokenRows.forEach(r => { r.cons = Math.round(splitCons); r.estimated = true; r.estLabel = 'split'; });
+  } else {
+    brokenRows.forEach(r => { r.cons = null; });
+  }
+
+  const consRows = rows.filter(r => r.cons !== null);
+  const totalCons = consRows.reduce((s, r) => s + r.cons, 0);
+
+  // Rebate model:
+  //   billable = consumption - rebate litres (if flat has rebate, e.g. 20,000 L)
+  //   per litre = total amount / total billable litres
+  //   flat bill = billable × per litre
+  const rebates = billing.rebates || {};
+  const billable = {}, bills = {}, share = {};
+  consRows.forEach(r => {
+    billable[r.flat] = Math.max(0, r.cons - (Number(rebates[r.flat]) || 0));
+  });
+  const totalBillable = consRows.reduce((s, r) => s + billable[r.flat], 0);
+  const useBills = totalAmount > 0 && totalBillable > 0;
+  const perLitre = useBills ? totalAmount / totalBillable : fallbackPrice;
+  consRows.forEach(r => {
+    bills[r.flat] = useBills ? billable[r.flat] * perLitre
+                  : (fallbackPrice > 0 ? billable[r.flat] * fallbackPrice : null);
+    share[r.flat] = totalBillable > 0 ? (billable[r.flat] / totalBillable) * 100 : 0;
+  });
+
+  // water inputs table (pipe meter + tankers)
+  let html = `<div style="background:#eef7f0;padding:12px;border-radius:8px;margin-bottom:10px">
+    <b>💧 Water Inputs — ${monthLabel(month)}</b>
+    <div class="row" style="margin-top:10px">
+      <div><label>🏛️ Manjeera Pipe — Start Reading (kL)</label>
+        <input type="number" step="any" id="wpStart" value="${inputs.pipeStart ?? ''}" placeholder="e.g. 115.56" style="width:130px" onchange="saveInputs('${month}')"></div>
+      <div><label>End Reading (kL)</label>
+        <input type="number" step="any" id="wpEnd" value="${inputs.pipeEnd ?? ''}" placeholder="e.g. 150.748" style="width:130px" onchange="saveInputs('${month}')"></div>
+      <div><label>🏛️ Manjeera Bill (₹)</label>
+        <input type="number" id="bManjeera" value="${manjeeraAmount || ''}" placeholder="e.g. 4000" style="width:110px" onchange="saveInputs('${month}')"></div>
+      <div class="muted" style="align-self:center"><b>= ${pipeL.toLocaleString()} L</b></div>
+    </div>`;
+  tankers.forEach((t, i) => {
+    const rowL = (Number(t.size) || 0) * (Number(t.count) || 0);
+    const rowAmt = (Number(t.price) || 0) * (Number(t.count) || 0);
+    html += `<div class="row">
+      <div><label>🚛 Tanker Type</label>
+        <select id="tType_${i}" onchange="saveInputs('${month}')">
+          <option value="municipal" ${t.type === 'municipal' ? 'selected' : ''}>Municipal (Manjeera)</option>
+          <option value="private" ${t.type === 'private' ? 'selected' : ''}>Private</option>
+        </select></div>
+      <div><label>Size (L)</label>
+        <select id="tSize_${i}" onchange="saveInputs('${month}')">
+          <option value="5000" ${Number(t.size) === 5000 ? 'selected' : ''}>5,000</option>
+          <option value="10000" ${Number(t.size) === 10000 ? 'selected' : ''}>10,000</option>
+        </select></div>
+      <div><label>Tankers (count)</label>
+        <input type="number" id="tCount_${i}" value="${t.count || ''}" placeholder="0" style="width:70px" onchange="saveInputs('${month}')"></div>
+      <div><label>Price per Tanker (₹)</label>
+        <input type="number" id="tPrice_${i}" value="${t.price || ''}" placeholder="0" style="width:90px" onchange="saveInputs('${month}')"></div>
+      <div class="muted" style="align-self:center"><b>= ${rowL.toLocaleString()} L | ₹${rowAmt.toLocaleString()}</b></div>
+      <button onclick="delTanker('${month}', ${i})" style="background:#b0300e">🗑</button>
+    </div>`;
+  });
+  html += `<div class="row" style="margin-top:4px">
+      <button onclick="addTanker('${month}')">＋ Add Tankers</button>
+      <div style="align-self:center"><b>Total Input Water: ${totalInput.toLocaleString()} L</b>
+        &nbsp;|&nbsp; Tanker Bills: ₹${tankerAmount.toLocaleString()}
+        &nbsp;|&nbsp; Total Bill: ₹${totalAmount.toLocaleString()}
+        ${useBills ? `&nbsp;|&nbsp; Per litre: ₹${perLitre.toFixed(4)}` : ''}</div>
+    </div>
+  </div>`;
+
+  html += `<table><tr>
+    <th>Flat</th>
+    <th>Meter OK?</th>
+    <th>Start Reading</th>
+    <th>End Reading</th>
+    <th>Consumption (L)</th>
+    <th>Rebate?</th>
+    <th>Rebate (L)</th>
+    <th>Billable (L)</th>
+    <th>Share %</th>
+    <th>Bill (₹)</th>
+    <th>Photos</th></tr>`;
+
+  let totalBill = 0, totalRebate = 0;
+  for (const r of rows) {
+    const bill = r.cons !== null ? bills[r.flat] : null;
+    if (bill) totalBill += bill;
+    const rb = Number(rebates[r.flat]) || 0;
+    totalRebate += rb;
+    const hasRebate = rb > 0;
+    const isExpanded = expandedFlat === r.flat;
+
+    let photos = [];
+    if (r.startEntry && r.startEntry.photo && !r.sameEntry)
+      photos.push(`<a href="#" onclick="openPhoto('/uploads/${r.startEntry.photo}');return false;">📷 start</a>`);
+    if (r.endEntry && r.endEntry.photo) {
+      photos.push(`<a href="#" onclick="openPhoto('/uploads/${r.endEntry.photo}');return false;">📷 end</a>`);
+    } else {
+      // end entry has no photo — show the latest photo from this month
+      const withPhoto = getEntries(r.flat, month).filter(e => e.photo && e !== r.startEntry);
+      if (withPhoto.length)
+        photos.push(`<a href="#" onclick="openPhoto('/uploads/${withPhoto[withPhoto.length-1].photo}');return false;">📷 view</a>`);
+    }
+
+    const isBroken = !!broken[r.flat];
+    html += `<tr><td><a href="#" onclick="toggleEntries('${r.flat}');return false;" title="Edit readings">${r.flat} ${isExpanded ? '▲' : '✎'}</a></td>
+      <td><input type="checkbox" id="mtChk_${r.flat}" ${isBroken ? '' : 'checked'} onchange="saveMeters('${month}')" title="Tick = meter working"> ${isBroken ? '<small style="color:#b0300e">❌ broken</small>' : ''}</td>
+      <td ${r.startEntry && !r.sameEntry ? `ondblclick="editCell(${r.startEntry.id}, this, ${r.start})" title="Double-click to edit"` : ''}>${r.start !== null && !r.sameEntry ? r.start.toLocaleString() : '<span class="muted">—</span>'}</td>
+      <td ${r.endEntry ? `ondblclick="editCell(${r.endEntry.id}, this, ${r.end})" title="Double-click to edit"` : ''}>${r.end !== null ? r.end.toLocaleString() : '<span class="muted">—</span>'}</td>
+      <td class="usage">${r.cons !== null ? (r.estimated ? '≈ ' : '') + r.cons.toLocaleString() + (r.estimated ? ` <small class="muted">(${r.estLabel})</small>` : '') : '<span class="muted">' + (isBroken ? 'need input water' : 'need 2 readings') + '</span>'}</td>
+      <td><input type="checkbox" id="rbChk_${r.flat}" ${hasRebate ? 'checked' : ''} onchange="toggleRebate('${month}','${r.flat}')" title="Rebate వచ్చిందా?"></td>
+      <td><input type="number" id="rbVal_${r.flat}" value="${hasRebate ? rb : ''}" placeholder="20000" style="width:90px;padding:4px" ${hasRebate ? '' : 'disabled'} onchange="saveRebates('${month}')"></td>
+      <td>${r.cons !== null ? Math.round(billable[r.flat]).toLocaleString() : '—'}</td>
+      <td>${r.cons !== null ? share[r.flat].toFixed(1) + '%' : '—'}</td>
+      <td class="bill">${bill !== null && bill !== undefined ? '₹ ' + Math.round(bill).toLocaleString() : '—'}</td>
+      <td>${photos.length ? photos.join(' | ') : '—'}</td>
+      </tr>`;
+
+    // expanded editor: all entries of this flat in this month
+    if (isExpanded) {
+      const entries = getEntries(r.flat, month);
+      let inner = entries.length ? '' : '<span class="muted">No entries this month</span>';
+      for (const e of entries) {
+        inner += `<div class="row" style="margin-bottom:6px">
+          <div><label>Reading (kL)</label>
+            <input type="number" step="any" id="eRead_${e.id}" value="${e.reading}" style="width:120px"></div>
+          <div><label>Date &amp; Time</label>
+            <input type="datetime-local" id="eDate_${e.id}" value="${e.takenAt ? toLocalInput(e.takenAt) : ''}"></div>
+          ${e.photo ? `<a href="#" onclick="openPhoto('/uploads/${e.photo}');return false;" style="align-self:center">📷</a>` : ''}
+          <button onclick="updateEntry(${e.id})">Save</button>
+          <button onclick="deleteEntry(${e.id}, '${r.flat}')" style="background:#b0300e">🗑 Delete</button>
+        </div>`;
+      }
+      html += `<tr><td colspan="11" style="background:#fffbe8;text-align:left">
+        <b>✎ Flat ${r.flat} — ${monthLabel(month)} entries:</b><br><br>${inner}</td></tr>`;
+    }
+  }
+  html += `<tr class="total-row"><td>TOTAL</td><td></td><td></td><td></td>
+    <td>${totalCons.toLocaleString()} L</td><td></td>
+    <td>${totalRebate.toLocaleString()} L</td>
+    <td>${Math.round(totalBillable).toLocaleString()} L</td><td>100%</td>
+    <td>₹ ${Math.round(totalBill).toLocaleString()}</td><td></td></tr></table>`;
+
+  html += `<div class="row" style="margin-top:12px">
+    <button onclick="exportExcel('${month}')">⬇ Export Excel</button>
+    <button onclick="exportPDF('${month}')">🖨 Export PDF</button>
+  </div>`;
+  document.getElementById('tableWrap').innerHTML = html;
+}
+
+// clean table (no checkboxes/links) for Excel & PDF export
+function buildExportHTML(month) {
+  const billing = (DATA.billing || {})[month] || {};
+  const manjeeraAmount = Number(billing.manjeeraAmount) || 0;
+  const tankerAmount = Number(billing.tankerAmount) || 0;
+  const totalAmount = manjeeraAmount + tankerAmount;
+  const rebates = billing.rebates || {};
+  const broken = billing.brokenMeters || {};
+  const totalInput = Number(billing.totalInputLitres) || 0;
+
+  const rows = [];
+  for (const flat of allFlats()) {
+    const { startEntry, endEntry } = getStartEnd(flat, month);
+    if (!startEntry && !endEntry && !broken[flat]) continue;
+    const sameEntry = startEntry && endEntry && startEntry === endEntry;
+    const start = startEntry ? startEntry.reading : null;
+    const end = endEntry ? endEntry.reading : null;
+    const cons = (start !== null && end !== null && !sameEntry)
+      ? Math.max(0, Math.round((end - start) * 1000)) : null;
+    rows.push({ flat, start: sameEntry ? null : start, end, cons, rebate: Number(rebates[flat]) || 0 });
+  }
+  // broken meters: split the un-metered input water among them
+  const meteredCons = rows.filter(r => !broken[r.flat] && r.cons !== null).reduce((s, r) => s + r.cons, 0);
+  const brokenRows = rows.filter(r => broken[r.flat]);
+  if (brokenRows.length && totalInput > 0) {
+    const splitCons = Math.max(0, totalInput - meteredCons) / brokenRows.length;
+    brokenRows.forEach(r => { r.cons = Math.round(splitCons); r.estimated = true; });
+  } else {
+    brokenRows.forEach(r => { r.cons = null; });
+  }
+  const consRows = rows.filter(r => r.cons !== null);
+  const totalCons = consRows.reduce((s, r) => s + r.cons, 0);
+  consRows.forEach(r => r.billable = Math.max(0, r.cons - r.rebate));
+  const totalBillable = consRows.reduce((s, r) => s + r.billable, 0);
+  const perLitre = (totalAmount > 0 && totalBillable > 0) ? totalAmount / totalBillable : 0;
+  let totalBill = 0, totalRebate = 0;
+
+  let t = `<h2>SKS Apartment — Water Bill — ${monthLabel(month)}</h2>
+  <p>Manjeera Bill: ₹${manjeeraAmount.toLocaleString()} | Tanker Bills: ₹${tankerAmount.toLocaleString()} |
+  Total: ₹${totalAmount.toLocaleString()} | Billable Water: ${Math.round(totalBillable).toLocaleString()} L |
+  Per Litre: ₹${perLitre.toFixed(4)}</p>
+  <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Arial;font-size:13px">
+  <tr style="background:#0b5394;color:#fff">
+    <th>Flat</th><th>Meter</th><th>Start Reading</th><th>End Reading</th><th>Consumption (L)</th>
+    <th>Rebate (L)</th><th>Billable (L)</th><th>Share %</th><th>Bill (₹)</th></tr>`;
+  for (const r of rows) {
+    const bill = r.cons !== null ? r.billable * perLitre : null;
+    const shr = (r.cons !== null && totalBillable > 0) ? (r.billable / totalBillable) * 100 : null;
+    if (bill) totalBill += bill;
+    totalRebate += r.rebate;
+    t += `<tr>
+      <td>${r.flat}</td>
+      <td>${broken[r.flat] ? 'Not working' : 'OK'}</td>
+      <td align="right">${r.start !== null ? r.start : ''}</td>
+      <td align="right">${r.end !== null ? r.end : ''}</td>
+      <td align="right">${r.cons !== null ? (r.estimated ? '~' : '') + r.cons : ''}</td>
+      <td align="right">${r.rebate || ''}</td>
+      <td align="right">${r.cons !== null ? Math.round(r.billable) : ''}</td>
+      <td align="right">${shr !== null ? shr.toFixed(1) + '%' : ''}</td>
+      <td align="right"><b>${bill !== null ? Math.round(bill) : ''}</b></td></tr>`;
+  }
+  t += `<tr style="background:#fff6e0;font-weight:bold">
+    <td>TOTAL</td><td></td><td></td><td></td>
+    <td align="right">${totalCons}</td>
+    <td align="right">${totalRebate}</td>
+    <td align="right">${Math.round(totalBillable)}</td><td align="right">100%</td>
+    <td align="right">₹ ${Math.round(totalBill)}</td></tr></table>`;
+  return t;
+}
+
+function exportExcel(month) {
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>${buildExportHTML(month)}</body></html>`;
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `SKS-Water-Bill-${month}.xls`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportPDF(month) {
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>SKS Water Bill ${monthLabel(month)}</title>
+    <style>body{font-family:Arial;padding:20px} table{width:100%}</style>
+    </head><body>${buildExportHTML(month)}
+    <script>window.onload = () => window.print();<\/script></body></html>`);
+  w.document.close();
+}
+
+// collect everything from the billing form + table toggles and save
+async function postBilling(month) {
+  const saved = (DATA.billing || {})[month] || {};
+  const rebates = {}, brokenMeters = {};
+  let anyRebateBox = false, anyMeterBox = false;
+  for (const flat of allFlats()) {
+    const chk = document.getElementById('rbChk_' + flat);
+    const val = document.getElementById('rbVal_' + flat);
+    if (chk) { anyRebateBox = true;
+      if (chk.checked && val && Number(val.value) > 0) rebates[flat] = Number(val.value); }
+    const mt = document.getElementById('mtChk_' + flat);
+    if (mt) { anyMeterBox = true; if (!mt.checked) brokenMeters[flat] = true; }
+  }
+  // water inputs from the form (pipe meter + tanker rows)
+  let inputs = saved.inputs || {};
+  const wpStart = document.getElementById('wpStart');
+  if (wpStart) {
+    inputs = { pipeStart: wpStart.value, pipeEnd: document.getElementById('wpEnd').value, tankers: [] };
+    for (let i = 0; ; i++) {
+      const type = document.getElementById('tType_' + i);
+      if (!type) break;
+      inputs.tankers.push({
+        type: type.value,
+        size: Number(document.getElementById('tSize_' + i).value) || 0,
+        count: Number(document.getElementById('tCount_' + i).value) || 0,
+        price: Number(document.getElementById('tPrice_' + i).value) || 0
+      });
+    }
+  }
+  const tankers = inputs.tankers || [];
+  const pipeL = (Number(inputs.pipeEnd) > Number(inputs.pipeStart))
+    ? Math.round((Number(inputs.pipeEnd) - Number(inputs.pipeStart)) * 1000) : 0;
+  const tankerL = tankers.reduce((s, t) => s + (Number(t.size) || 0) * (Number(t.count) || 0), 0);
+  const tankerAmt = tankers.reduce((s, t) => s + (Number(t.price) || 0) * (Number(t.count) || 0), 0);
+  const bManjeera = document.getElementById('bManjeera');
+
+  await fetch('/api/billing', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      month,
+      manjeeraAmount: bManjeera ? bManjeera.value : (saved.manjeeraAmount || 0),
+      tankerAmount: tankers.length ? tankerAmt : (saved.tankerAmount || 0),
+      totalInputLitres: pipeL + tankerL,
+      rebates: anyRebateBox ? rebates : (saved.rebates || {}),
+      brokenMeters: anyMeterBox ? brokenMeters : (saved.brokenMeters || {}),
+      inputs
+    })
+  });
+  await load();
+}
+async function saveBilling(month) { await postBilling(month); }
+async function saveRebates(month) { await postBilling(month); }
+async function saveMeters(month) { await postBilling(month); }
+async function saveInputs(month) { await postBilling(month); }
+
+function ensureBilling(month) {
+  if (!DATA.billing) DATA.billing = {};
+  if (!DATA.billing[month]) DATA.billing[month] = {};
+  if (!DATA.billing[month].inputs) DATA.billing[month].inputs = {};
+  if (!DATA.billing[month].inputs.tankers) DATA.billing[month].inputs.tankers = [];
+  return DATA.billing[month].inputs;
+}
+async function addTanker(month) {
+  await postBilling(month);            // save current boxes first
+  const inputs = ensureBilling(month);
+  inputs.tankers.push({ type: 'municipal', size: 5000, count: '', price: '' });
+  renderTabs();
+}
+async function delTanker(month, i) {
+  const inputs = ensureBilling(month);
+  inputs.tankers.splice(i, 1);
+  renderTabs();
+  await postBilling(month);
+}
+
+// checkbox toggle: on = fill default 20,000 L; off = remove rebate
+function toggleRebate(month, flat) {
+  const chk = document.getElementById('rbChk_' + flat);
+  const val = document.getElementById('rbVal_' + flat);
+  if (chk.checked && !val.value) val.value = 20000;
+  if (!chk.checked) val.value = '';
+  val.disabled = !chk.checked;
+  saveRebates(month);
+}
+
+// ---------- photo zoom viewer ----------
+let zoom = 1, panX = 0, panY = 0, dragging = false, dragStart = null;
+const modal = document.getElementById('photoModal');
+const modalImg = document.getElementById('modalImg');
+
+function openPhoto(src) {
+  modalImg.src = src;
+  zoomReset();
+  modal.style.display = 'flex';
+}
+function closePhoto() { modal.style.display = 'none'; }
+function applyZoom() {
+  modalImg.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+  modalImg.style.cursor = zoom > 1 ? 'grab' : 'default';
+}
+function zoomBy(delta) {
+  zoom = Math.min(10, Math.max(1, zoom + delta));
+  if (zoom === 1) { panX = 0; panY = 0; }
+  applyZoom();
+}
+function zoomReset() { zoom = 1; panX = 0; panY = 0; applyZoom(); }
+
+modal.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoomBy(e.deltaY < 0 ? 0.5 : -0.5);
+}, { passive: false });
+
+modalImg.addEventListener('dblclick', () => zoomBy(zoom < 10 ? 2 : -9));
+
+modalImg.addEventListener('mousedown', e => {
+  if (zoom <= 1) return;
+  dragging = true;
+  dragStart = { x: e.clientX - panX, y: e.clientY - panY };
+  modalImg.style.cursor = 'grabbing';
+  e.preventDefault();
+});
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  panX = e.clientX - dragStart.x;
+  panY = e.clientY - dragStart.y;
+  applyZoom();
+});
+window.addEventListener('mouseup', () => { dragging = false; if (modal.style.display === 'flex') applyZoom(); });
+
+// touch support (phone): drag to pan when zoomed
+modalImg.addEventListener('touchstart', e => {
+  if (zoom <= 1 || e.touches.length !== 1) return;
+  dragging = true;
+  dragStart = { x: e.touches[0].clientX - panX, y: e.touches[0].clientY - panY };
+});
+modalImg.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  e.preventDefault();
+  panX = e.touches[0].clientX - dragStart.x;
+  panY = e.touches[0].clientY - dragStart.y;
+  applyZoom();
+}, { passive: false });
+modalImg.addEventListener('touchend', () => { dragging = false; });
+
+// click on dark background closes
+modal.addEventListener('click', e => { if (e.target === modal) closePhoto(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhoto(); });
+
+load();
+</script>
+</body>
+</html>
